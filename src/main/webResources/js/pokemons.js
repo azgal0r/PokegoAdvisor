@@ -1,4 +1,4 @@
-angular.module('hello', [])
+angular.module('hello')
     .controller('pokemons', function ($http, $scope, $window) {
         var self = this;
         self.getAPICode = function () {

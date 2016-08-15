@@ -20,11 +20,9 @@ angular.module('hello', [ 'ngRoute' ])
       self.greeting = response.data;
     })
   })
-.controller('navigation',
+.controller('navigation', function($rootScope, $http, $location) {
 
-  function($rootScope, $http, $location) {
-
-  var self = this
+  var self = this;
 
   var authenticate = function(credentials, callback) {
 
@@ -44,7 +42,7 @@ angular.module('hello', [ 'ngRoute' ])
       callback && callback();
     });
 
-  }
+  };
 
   authenticate();
   self.credentials = {};
@@ -65,5 +63,9 @@ angular.module('hello', [ 'ngRoute' ])
       $rootScope.authenticated = false;
       $location.path("/");
     });
-  }
+  };
+
+  self.navTologin = function() {
+    $location.path("/login");
+  };
 });

@@ -1,0 +1,9 @@
+<div ng-controller="pokemons as poke">
+    <a href="" ng-click="poke.getAPICode()">Get API Code</a>
+    <span>Key : <input type="text" ng-model="key"/><button ng-click="poke.getPokemons()">Get pokemons</button></span>
+    <ul>
+        <li ng-repeat="pokemon in listPokemons">
+            Name: {{pokemon.name}} , Iv ratio : {{pokemon.ivRatio}} , Cp : {{pokemon.cp}}
+        </li>
+    </ul>
+</div>
