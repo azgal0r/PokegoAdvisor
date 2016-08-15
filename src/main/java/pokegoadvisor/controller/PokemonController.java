@@ -11,6 +11,8 @@ import com.pokegoapi.exceptions.LoginFailedException;
 import com.pokegoapi.exceptions.RemoteServerException;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,16 +26,14 @@ import java.util.*;
  */
 @RestController
 public class PokemonController {
-    private PokemonGo go;
 
     @RequestMapping("/getPokemons")
-    public List<PokemonDTO> getPokemons(@RequestParam(name = "key", required = true) String googleKey) throws LoginFailedException, RemoteServerException {
-        if (go == null) {
-            OkHttpClient httpClient = new OkHttpClient();
-            GoogleUserCredentialProvider provider = new GoogleUserCredentialProvider(httpClient);
-            provider.login(googleKey);
-            go = new PokemonGo(provider, httpClient);
-        }
+    public List<PokemonDTO> getPokemons() throws LoginFailedException, RemoteServerException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        OkHttpClient httpClient = new OkHttpClient();
+        PokemonGo go = new PokemonGo(new GoogleUserCredentialProvider(httpClient, auth.getPrincipal().toString()), httpClient);
+
         Inventories inventories = go.getInventories();
         PokeBank pokeBank = inventories.getPokebank();
         List<PokemonDTO> listDTO = new ArrayList<>();
