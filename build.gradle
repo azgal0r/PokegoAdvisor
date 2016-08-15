@@ -1,0 +1,94 @@
+group 'pokemon-go'
+version '1.0-SNAPSHOT'
+
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.BUILD-SNAPSHOT")
+        classpath('ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.7.9.Beta2')
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'wro4j'
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url "http://repo.spring.io/snapshot" }
+    maven { url "http://repo.spring.io/milestone" }
+}
+
+ext {
+    versionJQuery = '2.1.1'
+    versionBootstrap = '3.2.0'
+    versionAngular = '1.3.8'
+}
+
+webResources {
+    bundle('core') {
+        js 'js/**/*.js'
+        preProcessor 'jsMin'
+    }
+
+    bundle('libs') {
+        js "webjars/jquery/$versionJQuery/jquery.min.js"
+        js "webjars/angularjs/$versionAngular/angular.min.js"
+        js "webjars/angularjs/$versionAngular/angular-route.min.js"
+        js "webjars/angularjs/$versionAngular/angular-cookies.min.js"
+    }
+
+    bundle('theme-default') {
+        css "webjars/bootstrap/$versionBootstrap/less/bootstrap.less"
+        css 'themes/default/main.less'
+
+        //cssOverrideImport "variables.less", "../../../../themes/default/variables.less"
+        //preProcessor 'less4j'
+        //cssRewriteUrl()
+    }
+
+    assets {
+        include 'themes/default/images/**'
+
+        /* Uncomment the following lines if you prefer to copy fonts to your /static/themes/default/fonts */
+        /*from ("$buildMainDir/webjars/bootstrap/$versionBootstrap/fonts") {
+            include '**'
+            into 'themes/default/fonts'
+        }*/
+    }
+
+}
+
+springBoot {
+    mainClass = "pokegoadvisor.Application"
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile 'com.squareup.okio:okio:1.9.0'
+    compile 'com.squareup.moshi:moshi:1.2.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile files('src/main/resources/PokeGOAPI-library-all-0.3.0.jar')
+    webjars "org.webjars:jquery:$versionJQuery"
+    webjars "org.webjars:bootstrap:$versionBootstrap"
+    webjars "org.webjars:angularjs:$versionAngular"
+}
+
+/*dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'co0m.squareup.okio:okio:1.9.0'
+    compile 'com.squareup.moshi:moshi:1.2.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile files('src/main/libs/PokeGOAPI-library-all-0.3.0.jar')
+    compile("org.springframework.boot:spring-boot-starter-web:1.4.0.RELEASE")
+}*/
