@@ -35,7 +35,7 @@ ext {
 webResources {
     bundle('core') {
         js 'js/**/*.js'
-        preProcessor 'jsMin'
+        /*preProcessor 'jsMin'*/
     }
 
     bundle('libs') {

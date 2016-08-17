@@ -20,6 +20,11 @@ angular.module('hello', [ 'ngRoute' ])
       controller : 'pokemons',
       controllerAs : 'controller'
     })
+    .when('/loginPtc', {
+        templateUrl : 'loginPtc.html',
+        controller : 'loginPtc',
+        controllerAs : 'controller'
+    })
     .otherwise('/');
 
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
@@ -80,9 +85,7 @@ angular.module('hello', [ 'ngRoute' ])
     var self = this;
 
     var authenticate = function(credentials, callback) {
-        var headers = credentials ? {authorization : "Basic "
-        + btoa("GOOGLE" + ":" + credentials.token)
-        } : {};
+        var headers = credentials ? {googleAuthToken : ""+credentials.token} : {};
 
         $http.get('user', {headers:headers}).then(function(response) {
         if (response.data.name) {
@@ -113,6 +116,40 @@ angular.module('hello', [ 'ngRoute' ])
     self.getAPICode = function () {
         $http.get("/getGoogleCode").then(function (response) {
             $window.open(response.data.url);
+        });
+    };
+})
+.controller('loginPtc', function($rootScope, $http, $location, $window) {
+    var self = this;
+
+    var authenticate = function(credentials, callback) {
+        var headers = credentials ? {authorization : "Basic "
+        + btoa(credentials.username + ":" + credentials.password)
+        } : {};
+
+        $http.get('user', {headers:headers}).then(function(response) {
+        if (response.data.name) {
+        $rootScope.authenticated = true;
+        } else {
+        $rootScope.authenticated = false;
+        }
+        callback && callback();
+        }, function() {
+        $rootScope.authenticated = false;
+        callback && callback();
+        });
+    };
+
+    self.credentials = {};
+    self.login = function() {
+        authenticate(self.credentials, function() {
+         if ($rootScope.authenticated) {
+           $location.path("/");
+           self.error = false;
+         } else {
+           $location.path("/loginPtc");
+           self.error = true;
+         }
         });
     };
 });

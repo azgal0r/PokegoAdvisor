@@ -1,10 +1,10 @@
-package pokegoadvisor;
+package pokegoadvisor.security;
 
-import com.pokegoapi.auth.GoogleUserCredentialProvider;
+import com.pokegoapi.api.PokemonGo;
+import com.pokegoapi.auth.PtcCredentialProvider;
 import com.pokegoapi.exceptions.LoginFailedException;
 import com.pokegoapi.exceptions.RemoteServerException;
 import okhttp3.OkHttpClient;
-import org.apache.commons.logging.Log;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,14 +15,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Anthony on 8/15/2016.
+ * Created by Anthony on 8/17/2016.
  */
-@Component("googleAuth")
-public class GoogleAuthentificationProvider implements AuthenticationProvider {
+@Component("PTCAuth")
+public class PtcAuthentificationProvider implements AuthenticationProvider {
+
+    @Resource
+    private SessionContext session = null;
+
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
@@ -31,15 +36,18 @@ public class GoogleAuthentificationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String token = authentication.getCredentials().toString();
+        String userName = authentication.getPrincipal().toString();
+        String password = authentication.getCredentials().toString();
+
         OkHttpClient httpClient = new OkHttpClient();
-        GoogleUserCredentialProvider provider = null;
         try {
-            provider = new GoogleUserCredentialProvider(httpClient);
-            provider.login(token);
             List<GrantedAuthority> grantedAuths = new ArrayList<>();
             grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-            Authentication auth = new UsernamePasswordAuthenticationToken(provider.getRefreshToken(), "", grantedAuths);
+
+            PokemonGo go = new PokemonGo(new PtcCredentialProvider(httpClient, userName, password), httpClient);
+            session.setGoApi(go);
+
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userName, password, grantedAuths);
             return auth;
         } catch (LoginFailedException e) {
             throw new BadCredentialsException(e.getMessage(),e);
